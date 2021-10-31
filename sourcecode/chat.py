@@ -1,6 +1,7 @@
 import sys
 import serial
 import time
+import user
 from Crypto.Cipher import AES
 from binascii import b2a_hex, a2b_hex
 import serial.tools.list_ports
@@ -27,6 +28,7 @@ class MainWindow(QMainWindow,Ui_MainWindow):
 
         self.pushButton_login.clicked.connect(self.login)#连接串口按钮
         self.pushButton_send.clicked.connect(self.send)
+        print (user.user_information.username[1])
 
 
         
