@@ -25,9 +25,10 @@ class MainWindow(QMainWindow,Ui_MainWindow):
 
 
 
-
+        self.pushButton_zhonggao.clicked.connect(self.zhonggao)
         self.pushButton_login.clicked.connect(self.login)#连接串口按钮
         self.pushButton_send.clicked.connect(self.send)
+        self.checkBox_zhonggao.stateChanged.connect(self.mianze)
         print (user.user_information.username[1])
 
 
@@ -56,19 +57,30 @@ class MainWindow(QMainWindow,Ui_MainWindow):
         self.serial.baudrate = 38400  # 设置波特率（这里使用的是stc89c52）
 
     def login(self):
-        self.serial.port = self.comboBox.currentText() # 获取复选框中的串
-        try:#开启串口
-            self.serial.open()# 打开串口
-            if self.serial.is_open:# 判断串口是否打开
-               self.chatbox.insertPlainText('外设连接成功\n')
-               self.serial.is_open=1
-            else:
-               self.chatbox.insertPlainText('外设连接失败\n')
-        except Exception as err:
-            if self.serial.is_open==1:
-                self.chatbox.insertPlainText('外设已连接,勿重复点击\n')
-            else:
-                self.chatbox.insertPlainText("外设连接失败,请选择未占用串口\n")
+        logstate=user.user_information.searchcount(self.lineEdit_user.text(),self.lineEdit_psk.text())
+        userid=user.user_information.userid
+        if logstate==1:
+            self.serial.port = self.comboBox.currentText() # 获取复选框中的串
+            try:#开启串口
+                self.serial.open()# 打开串口
+                if self.serial.is_open:# 判断串口是否打开
+                    self.chatbox.insertPlainText('外设连接成功\n')
+                    self.chatbox.insertPlainText(user.user_information.cnuser[userid]+' 欢迎登陆'+'\n')
+                    self.serial.is_open=1
+                    self.lineEdit_name.setText(user.user_information.cnuser[userid])
+                    self.pushButton_login.setEnabled(False)
+                else:
+                    self.chatbox.insertPlainText('外设连接失败\n')
+            except Exception as err:
+                if self.serial.is_open==1:
+                    self.chatbox.insertPlainText('外设已连接,勿重复点击\n')
+                else:
+                    self.chatbox.insertPlainText("外设连接失败,请选择未占用串口\n")
+        elif logstate==2:
+            self.chatbox.insertPlainText("密码错误\n")
+        elif logstate==3:
+            self.chatbox.insertPlainText("用户不存在\n")
+
     def send(self):
         if self.serial.is_open==1:
             strs=self.linesend.text()
@@ -111,7 +123,14 @@ class MainWindow(QMainWindow,Ui_MainWindow):
                     time.sleep(0.002)
                     continue       
 
+    def zhonggao(self):
+        self.chatbox.insertPlainText('  互联网不是法外之地。利用网络鼓吹推翻国家政权，煽动宗教极端主义，宣扬民族分裂思想，教唆暴力恐怖活动，等等，这样的行为要坚决制止和打击，决不能任其大行其道。\n  利用网络进行欺诈活动，散布色情材料，进行人身攻击，兜售非法物品，等等，这样的言行也要坚决管控，决不能任其大行其道。\n')
 
+    def mianze(self):
+        if self.checkBox_zhonggao.isChecked():
+            self.pushButton_login.setEnabled(True)
+        else:
+            self.pushButton_login.setEnabled(False)
 
 
 
