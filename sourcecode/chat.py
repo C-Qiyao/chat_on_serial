@@ -100,6 +100,14 @@ class MainWindow(QMainWindow,Ui_MainWindow):
         ciphertext_hex = b2a_hex(ciphertext) # 字符串转十六进制数据
         ciphertext_hex_de = ciphertext_hex.decode()
         return ciphertext_hex_de
+    def readserial(self):
+        while(1):
+           if self.serial.is_open==1:
+               try:
+                   self.info = self.serial.readline().decode()
+               except Exception as err:
+                    time.sleep(0.002)
+                    continue       
 
 
 
