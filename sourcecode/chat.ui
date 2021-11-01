@@ -165,7 +165,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="pushButton_quit">
     <property name="enabled">
      <bool>true</bool>
     </property>
