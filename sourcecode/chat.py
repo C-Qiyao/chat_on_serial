@@ -3,6 +3,7 @@ import sys
 import serial
 import time
 import user
+import threading as th
 from Crypto.Cipher import AES
 from binascii import b2a_hex, a2b_hex
 import serial.tools.list_ports
@@ -17,12 +18,14 @@ class MainWindow(QMainWindow,Ui_MainWindow):
     def __init__(self):
         super(MainWindow,self).__init__()
         self.setupUi(self)
-        #在此输入connect链接
+        #在此输入connect链接        
+        self.chatbox.insertPlainText("***请先阅读遥哥忠告，并且勾选协议书\n")
+        self.readdata = th.Thread(target=self.readserial)#processdata设置单独线程
+        self.readdata.setDaemon(True)#设置为后台线程，关闭一起关闭
         self.show()
 
 
 
-        self.chatbox.insertPlainText("***请先阅读遥哥忠告，并且勾选协议书\n")
 
 
 
@@ -59,11 +62,11 @@ class MainWindow(QMainWindow,Ui_MainWindow):
                 self.comboBox.addItem(self.port_list[i][0])# 将可用串口添加至comboBox（复选框）控件
                 # 串口参数设置
         self.serial = serial.Serial(timeout=1)  # 实例化串口类
-        self.serial.baudrate = 38400  # 设置波特率（这里使用的是stc89c52）
+        self.serial.baudrate = 115200  # 设置波特率（这里使用的是stc89c52）
 
     def login(self):
         logstate=user.user_information.searchcount(self.lineEdit_user.text(),self.lineEdit_psk.text())
-        userid=user.user_information.userid
+        self.userid=user.user_information.userid
         if logstate==1:
             self.serial.port = self.comboBox.currentText() # 获取复选框中的串
             try:#开启串口
@@ -71,10 +74,11 @@ class MainWindow(QMainWindow,Ui_MainWindow):
                 if self.serial.is_open:# 判断串口是否打开
                     self.chatbox.clear()
                     self.chatbox.insertPlainText('***外设连接成功\n')
-                    self.chatbox.insertPlainText(user.user_information.cnuser[userid]+' 欢迎登陆...'+'\n')
+                    self.chatbox.insertPlainText(user.user_information.cnuser[self.userid]+' 欢迎登陆...'+'\n')
                     self.serial.is_open=1
-                    self.lineEdit_name.setText(user.user_information.cnuser[userid])
+                    self.lineEdit_name.setText(user.user_information.cnuser[self.userid])
                     self.pushButton_login.setEnabled(False)
+                    self.readdata.start()
                 else:
                     self.chatbox.insertPlainText('***外设连接失败\n')
             except Exception as err:
@@ -98,8 +102,7 @@ class MainWindow(QMainWindow,Ui_MainWindow):
             self.chatbox.insertPlainText('***请先连接LoRa设备\n')
         if self.jiami.isChecked():
             miwen=self.cryp_str(strsend)
-            print(miwen)
-            print(self.decry_str(miwen))
+            print('add加密：   '+miwen)
             self.serial.write(bytes(miwen+'\n',encoding='utf-8'))
         else:
             self.serial.write(bytes(strsend,encoding='utf-8'))
@@ -121,15 +124,26 @@ class MainWindow(QMainWindow,Ui_MainWindow):
         ciphertext_hex = b2a_hex(ciphertext) # 字符串转十六进制数据
         ciphertext_hex_de = ciphertext_hex.decode()
         return ciphertext_hex_de
-        
+
     def readserial(self):
         while(1):
            if self.serial.is_open==1:
                try:
-                   self.info = self.serial.readline().decode()
+                   info = self.serial.readline().decode()
+                   if not info:
+                        time.sleep(0.0001)#如果没有，那就再等等
+                        continue#下一循环
+                   else:
+                        self.rece=info
+                        if self.jiami.isChecked():
+                            self.chatbox.insertPlainText(info)
+                            print('aaa'+a2b_hex(info))
+                        else:
+                            self.chatbox.insertPlainText(info)
                except Exception as err:
                     time.sleep(0.002)
-                    continue       
+                    continue    
+
 
     def decry_str(self,value):
         cryptor = AES.new(self.k, self.mode, self.iv) # 创建一个AES实例
