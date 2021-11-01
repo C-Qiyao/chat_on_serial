@@ -3,11 +3,11 @@ import sys
 import serial
 import time
 import user
+import difflib
 import threading as th
 from Crypto.Cipher import AES
 from binascii import b2a_hex, a2b_hex
 import serial.tools.list_ports
-from io import BytesIO
 from Ui_chat import Ui_MainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow,QPushButton, QPlainTextEdit,QLabel,QMessageBox
@@ -96,16 +96,17 @@ class MainWindow(QMainWindow,Ui_MainWindow):
             strs=self.linesend.text()
             nicheng=self.lineEdit_name.text()
             strtime=time.strftime('%H:%M',time.localtime())
-            strsend=strtime+">>"+nicheng+"说:"+strs+'\n'
-            self.chatbox.insertPlainText(strsend)
+            strsend=strtime+">>"+nicheng+"说:"+strs
+            self.chatbox.insertPlainText(strsend+'\n')
         else:
             self.chatbox.insertPlainText('***请先连接LoRa设备\n')
         if self.jiami.isChecked():
             miwen=self.cryp_str(strsend)
+            self.mw=miwen
             print('add加密：   '+miwen)
             self.serial.write(bytes(miwen+'\n',encoding='utf-8'))
         else:
-            self.serial.write(bytes(strsend,encoding='utf-8'))
+            self.serial.write(bytes(strsend+'\n',encoding='utf-8'))
 
     def cryp_str(self,value):
         value = value.encode('utf-8') # 对数据进行utf-8编码
@@ -129,17 +130,16 @@ class MainWindow(QMainWindow,Ui_MainWindow):
         while(1):
            if self.serial.is_open==1:
                try:
-                   info = self.serial.readline().decode()
-                   if not info:
+                   self.info = self.serial.readline().decode()
+                   if not self.info:
                         time.sleep(0.0001)#如果没有，那就再等等
                         continue#下一循环
                    else:
-                        self.rece=info
+                        self.rece=self.info
                         if self.jiami.isChecked():
-                            self.chatbox.insertPlainText(info)
-                            print('aaa'+a2b_hex(info))
+                            self.chatbox.insertPlainText(self.decry_str(self.info[0:-1])+'\n')                  
                         else:
-                            self.chatbox.insertPlainText(info)
+                            self.chatbox.insertPlainText(self.info)
                except Exception as err:
                     time.sleep(0.002)
                     continue    
