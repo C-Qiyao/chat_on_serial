@@ -24,36 +24,16 @@ class MainWindow(QMainWindow,Ui_MainWindow):
         self.readdata.setDaemon(True)#设置为后台线程，关闭一起关闭
         self.show()
 
-
-
-
-
-
-
-
-
-
         self.pushButton_zhonggao.clicked.connect(self.zhonggao)
         self.pushButton_login.clicked.connect(self.login)#连接串口按钮
         self.pushButton_send.clicked.connect(self.send)
         self.checkBox_zhonggao.stateChanged.connect(self.mianze)
         self.pushButton_quit.clicked.connect(self.quit)
 
-
-        
-
-        
         self.k = 'cqyisthebesttman'.encode('utf-8')  # 密钥
         self.iv = b'1234567890asdfgh'  # 偏移量
         self.mode = AES.MODE_CBC  # 模式 
 
-
-
-
-
-
-
-        
         self.port_list = list(serial.tools.list_ports.comports())# 获取当前可用串口列表，serial模块函数
         if len(self.port_list) == 0:# 判断串口列表是否为空
             self.chatbox.insertPlainText("***未找到可用串口\n")# 弹出错误警告框，自建函数
@@ -86,6 +66,7 @@ class MainWindow(QMainWindow,Ui_MainWindow):
                     self.chatbox.insertPlainText('外设已连接,勿重复点击\n')
                 else:
                     self.chatbox.insertPlainText("***外设连接失败,请选择未占用串口\n")
+
         elif logstate==2:
             self.chatbox.insertPlainText("***密码错误\n")
         elif logstate==3:
@@ -137,7 +118,7 @@ class MainWindow(QMainWindow,Ui_MainWindow):
                    else:
                         self.rece=self.info
                         if self.jiami.isChecked():
-                            self.chatbox.insertPlainText(self.decry_str(self.info[0:-1])+'\n')                  
+                            self.chatbox.insertPlainText(self.decry_str(self.info[0:-1])+'\n')                 
                         else:
                             self.chatbox.insertPlainText(self.info)
                except Exception as err:
@@ -156,6 +137,7 @@ class MainWindow(QMainWindow,Ui_MainWindow):
         self.chatbox.insertPlainText('  2.禁止反向工程、反向编译和反向汇编：用户不得对本软件产品进行反向工程(Reverse Engineer)、反向编译(Decompile)或反向汇编(Disassemble)，同时不得改动编译在程序文件内部的任何资源。除法律、法规明文规定允许上述活动外，用户必须遵守此协议限制。\n')
         self.chatbox.insertPlainText('  3.使用本软件产品风险由用户自行承担，在适用法律允许的最大范围内，对因使用或不能使用本软件所产生的损害及风险，包括但不限于直接或间接的个人损害、商业赢利的丧失、贸易中断、商业信息的丢失或任何其它经济损失，作者不承担任何责任。\n')
         self.chatbox.insertPlainText('  4.本协议适用中华人民共和国法律。\n')
+        textCursor = self.chatbox.textCursor()
     def mianze(self):
         if self.checkBox_zhonggao.isChecked():
             self.pushButton_login.setEnabled(True)
