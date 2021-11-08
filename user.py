@@ -1,18 +1,18 @@
 class user_information:
-    username=['cqy',
-    'hyl',
-    'zzy',
-    'mdh',
+    username=['1',
+    '2',
+    '3',
+    '4',
     '']
-    userpsk=['19990331cqy',
+    userpsk=['',
     '',
     '',
     '',
     '']
-    cnuser=['陈祺遥',
-    '韩远亮',
-    '张智阳',
-    '马登辉',
+    cnuser=['嘤嘤嘤',
+    '二二二',
+    '三三三',
+    'fff',
     'test']
     userid=0
     def searchcount(name,psk):
