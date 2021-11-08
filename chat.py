@@ -42,7 +42,7 @@ class MainWindow(QMainWindow,Ui_MainWindow):
                 self.comboBox.addItem(self.port_list[i][0])# 将可用串口添加至comboBox（复选框）控件
                 # 串口参数设置
         self.serial = serial.Serial(timeout=1)  # 实例化串口类
-        self.serial.baudrate = 19200  # 设置波特率（这里使用的是stc89c52）
+        self.serial.baudrate = 115200  # 设置波特率（这里使用的是stc89c52）
 
     def login(self):
         logstate=user.user_information.searchcount(self.lineEdit_user.text(),self.lineEdit_psk.text())
